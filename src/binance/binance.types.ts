@@ -1,8 +1,1 @@
-export interface BinanceKline {
-    symbol: string;
-    interval: string;
-    startTime: number;
-    endTime: number;
-    timeZone: string;
-    limit: number;
-}
+export type BinanceKline = [number, string, string, string, string, string, number, string, number, string, string][];
