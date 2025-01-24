@@ -58,6 +58,13 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
+## Example endpoint
+To test the endpoint provide symbol param and ISO start/end dates.
+```
+localhost:3000/analytics/BTCUSDT?endDate=2025-01-21T14:36:09.041Z&startDate=2025-01-20T14:36:09.041Z
+```
+
+
 ## Deployment
 
 When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.

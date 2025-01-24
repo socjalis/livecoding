@@ -1,1 +1,2 @@
+// https://developers.binance.com/docs/binance-spot-api-docs/rest-api/market-data-endpoints#klinecandlestick-data
 export type BinanceKlines = [number, string, string, string, string, string, number, string, number, string, string][];

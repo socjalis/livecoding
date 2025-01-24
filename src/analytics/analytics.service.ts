@@ -1,67 +1,52 @@
-import {Injectable} from '@nestjs/common';
-import {BinanceService} from "../binance/binance.service";
-import {BinanceKlines} from "../binance/binance.types";
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { BinanceService } from '../binance/binance.service';
+import { BinanceKlines } from '../binance/binance.types';
 
 @Injectable()
 export class AnalyticsService {
-    API_URL = 'https://api.binance.com';
+  constructor(
+    private readonly binanceService: BinanceService,
+  ) {
+  }
 
-    constructor(
-        private readonly binanceService: BinanceService,
-    ) {
+  // https://developers.binance.com/docs/binance-spot-api-docs/rest-api/market-data-endpoints#klinecandlestick-data
+  async getAndAnalizeHistoricalData(symbol: string, startDate: Date, endDate: Date) {
+    const startTime = startDate.getTime();
+    const endTime = endDate.getTime();
+
+    const klines = await this.binanceService.fetchKlinesBySymbolAndDate(symbol, startTime, endTime);
+
+    if (klines.length === 0) {
+      throw new BadRequestException('Specified market data does not include any klines');
     }
 
-    // https://developers.binance.com/docs/binance-spot-api-docs/rest-api/market-data-endpoints#klinecandlestick-data
-    async getAndAnalizeHistoricalData(symbol: string, startDate: Date, endDate: Date) {
-        const startTime = startDate.getTime();
-        const endTime = endDate.getTime();
+    return this.analyzeData(klines);
+  }
 
-        const klines = await this.binanceService.fetchKlinesBySymbolAndDate(symbol, startTime, endTime);
+  analyzeData(klines: BinanceKlines) {
+    const klinesWithAverages = klines.map(kline => {
+      const klineMax = Number(kline[2]);
+      const klineMin = Number(kline[3]);
+      // docs explain array structure
+      // https://developers.binance.com/docs/binance-spot-api-docs/rest-api/market-data-endpoints#klinecandlestick-data
+      return { avg: (klineMax + klineMin) / 2, openTime: kline[0], closeTime: kline[6], trades: kline[8] };
+    });
 
-        console.log('LENGTH', klines.length);
-        return this.analyzeData(klines);
-    }
+    let max = Number.MIN_VALUE;
+    let min = Number.MAX_VALUE;
+    let maxTrades = 0;
 
-    analyzeData(klines: BinanceKlines) {
-        const klinesWithAverages = klines.map(kline => {
-            const klineMax = Number(kline[2]);
-            const klineMin = Number(kline[3]);
-            return {avg: (klineMax + klineMin) / 2, openTime: kline[0], closeTime: kline[6], trades: kline[8]};
-        });
+    klinesWithAverages.forEach(kline => {
+      if (kline.avg > max) max = kline.avg;
+      if (kline.avg < min) min = kline.avg;
+      if (kline.trades > maxTrades) maxTrades = kline.trades;
+    });
 
-        let max: typeof klinesWithAverages[0] = {
-            avg: 0,
-            closeTime: 0,
-            openTime: 0,
-            trades: 0,
-        }
-
-        let min: typeof klinesWithAverages[0] = {
-            avg: Number.MAX_VALUE,
-            closeTime: 0,
-            openTime: 0,
-            trades: 0,
-        }
-
-        let maxTrades: typeof klinesWithAverages[0] = {
-            avg: 0,
-            closeTime: 0,
-            openTime: 0,
-            trades: 0,
-        }
-
-        klinesWithAverages.forEach(kline => {
-            if (kline.avg > max.avg) max = kline;
-            if (kline.avg < min.avg) min = kline;
-            if (kline.trades > kline.trades) maxTrades = kline;
-        })
-
-        console.log(min, max)
-        return {
-            priceChange: klinesWithAverages[0].avg - klinesWithAverages[klinesWithAverages.length - 1].avg,
-            maxTradesWithinKline: maxTrades.trades,
-            maxPrice: max.avg,
-            minPrice: min.avg,
-        }
-    }
+    return {
+      priceChange: klinesWithAverages[0].avg - klinesWithAverages[klinesWithAverages.length - 1].avg,
+      maxTradesWithinKline: maxTrades,
+      maxPrice: max,
+      minPrice: min,
+    };
+  }
 }

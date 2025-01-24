@@ -7,4 +7,5 @@ import { HttpModule } from '@nestjs/axios';
   providers: [BinanceService],
   exports: [BinanceService],
 })
-export class BinanceModule {}
+export class BinanceModule {
+}
