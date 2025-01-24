@@ -9,7 +9,7 @@ export class AnalyticsController {
   getHello(
       @Param('symbol') symbol: string,
       @Query('startDate', new ParseDatePipe()) startDate: Date,
-      @Query('startDate', new ParseDatePipe()) endDate: Date,
+      @Query('endDate', new ParseDatePipe()) endDate: Date,
   ) {
     return this.analyticsService.getAndAnalizeHistoricalData(symbol, startDate, endDate);
   }

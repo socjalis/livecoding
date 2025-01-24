@@ -18,7 +18,7 @@ export class AnalyticsService {
 
         const klines = await this.binanceService.fetchKlinesBySymbolAndDate(symbol, startTime, endTime);
 
-
+        return this.analyzeData(klines);
     }
 
     analyzeData(klines: BinanceKlines) {
@@ -42,11 +42,19 @@ export class AnalyticsService {
             trades: 0,
         }
 
+        let maxTrades: typeof klinesWithAverages[0] = {
+            avg: 0,
+            closeTime: 0,
+            openTime: 0,
+            trades: 0,
+        }
+
         klinesWithAverages.forEach(kline => {
             if (kline.avg > max.avg) max = kline;
             if (kline.avg < min.avg) min = kline;
+            if (kline.trades > kline.trades) maxTrades = kline;
         })
 
-        return {min, max};
+        return {min, max, maxTrades};
     }
 }
