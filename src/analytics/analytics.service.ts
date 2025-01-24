@@ -18,6 +18,7 @@ export class AnalyticsService {
 
         const klines = await this.binanceService.fetchKlinesBySymbolAndDate(symbol, startTime, endTime);
 
+        console.log('LENGTH', klines.length);
         return this.analyzeData(klines);
     }
 
@@ -55,6 +56,12 @@ export class AnalyticsService {
             if (kline.trades > kline.trades) maxTrades = kline;
         })
 
-        return {min, max, maxTrades};
+        console.log(min, max)
+        return {
+            priceChange: klinesWithAverages[0].avg - klinesWithAverages[klinesWithAverages.length - 1].avg,
+            maxTradesWithinKline: maxTrades.trades,
+            maxPrice: max.avg,
+            minPrice: min.avg,
+        }
     }
 }

@@ -6,7 +6,7 @@ export class AnalyticsController {
   constructor(private readonly analyticsService: AnalyticsService) {}
 
   @Get(':symbol')
-  getHello(
+  analyzeData(
       @Param('symbol') symbol: string,
       @Query('startDate', new ParseDatePipe()) startDate: Date,
       @Query('endDate', new ParseDatePipe()) endDate: Date,
