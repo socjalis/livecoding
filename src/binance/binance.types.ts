@@ -1,1 +1,1 @@
-export type BinanceKline = [number, string, string, string, string, string, number, string, number, string, string][];
+export type BinanceKlines = [number, string, string, string, string, string, number, string, number, string, string][];

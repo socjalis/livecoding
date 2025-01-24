@@ -1,7 +1,7 @@
 import {Controller, Get, Param, ParseDatePipe, Query} from '@nestjs/common';
 import {AnalyticsService} from "./analytics.service";
 
-@Controller()
+@Controller('analytics')
 export class AnalyticsController {
   constructor(private readonly analyticsService: AnalyticsService) {}
 
